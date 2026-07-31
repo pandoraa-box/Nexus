@@ -24,6 +24,16 @@ export interface Transaction {
   created_at: Date;
 }
 
+export interface AuditLogEntry {
+  id: string;
+  admin_user: string;
+  action: string;
+  target: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  created_at: Date;
+}
+
 export type UssdState =
   | "menu"
   | "send_recipient"

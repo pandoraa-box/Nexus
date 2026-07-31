@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../auth";
+import { logAdminAction } from "./audit";
 
 export function jwtAuth(req: Request, res: Response, next: NextFunction): void {
   const auth = req.headers.authorization;
@@ -15,4 +16,5 @@ export function jwtAuth(req: Request, res: Response, next: NextFunction): void {
   }
   (req as any).user = payload;
   next();
+  logAdminAction(req, payload.sub, `${req.method} ${req.path}`);
 }
