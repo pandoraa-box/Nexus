@@ -3,7 +3,7 @@ import { jwtAuth } from "../middleware/auth";
 import { generateToken, verifyAdminPassword, hashPin, verifyPin } from "../auth";
 import { query, queryOne } from "../db";
 import { createWallet } from "../wallet";
-import { Transaction, User } from "../types";
+import { Transaction, User, AuditLogEntry } from "../types";
 import { config } from "../config";
 import { loginLimiter, getClientIp } from "../middleware/rateLimit";
 
@@ -69,6 +69,30 @@ router.get("/admin/wallets", jwtAuth, async (req: Request, res: Response): Promi
     );
     res.json(users);
   }
+});
+
+// GET /api/admin/audit-log
+router.get("/admin/audit-log", jwtAuth, async (req: Request, res: Response): Promise<void> => {
+  const page = Math.max(parseInt(String(req.query.page || "1"), 10) || 1, 1);
+  const perPage = Math.min(Math.max(parseInt(String(req.query.per_page || "50"), 10) || 50, 1), 100);
+  const { admin_user } = req.query;
+  const where = admin_user ? " WHERE admin_user = $1" : "";
+  const params: any[] = admin_user ? [admin_user] : [];
+  const offset = (page - 1) * perPage;
+
+  const total = await queryOne<{ count: string }>(
+    `SELECT COUNT(*)::text AS count FROM audit_log${where}`,
+    params
+  );
+  const entries = await query<AuditLogEntry>(
+    `SELECT id, admin_user, action, target, ip, user_agent, created_at
+     FROM audit_log${where}
+     ORDER BY created_at DESC
+     LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+    [...params, perPage, offset]
+  );
+
+  res.json({ total: parseInt(total?.count ?? "0", 10), page, perPage, entries });
 });
 
 // POST /api/admin/users (register a user)
