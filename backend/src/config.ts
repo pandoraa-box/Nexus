@@ -7,6 +7,7 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || "nexus-dev-secret-change-in-production",
   adminUsername: process.env.ADMIN_USERNAME || "admin",
   adminPasswordHash: process.env.ADMIN_PASSWORD_HASH || "",
+  corsOrigin: process.env.CORS_ORIGIN || "http://localhost:3000",
   loginRateLimitWindowMs: parseInt(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || String(15 * 60 * 1000), 10),
   loginRateLimitMax: parseInt(process.env.LOGIN_RATE_LIMIT_MAX || "5", 10),
   sorobanRpcUrl: process.env.SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org",
