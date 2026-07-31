@@ -5,18 +5,28 @@ import { query, queryOne } from "../db";
 import { createWallet } from "../wallet";
 import { Transaction, User } from "../types";
 import { config } from "../config";
+import { loginLimiter, getClientIp } from "../middleware/rateLimit";
 
 const router = Router();
 
 // POST /api/admin/login
-router.post("/admin/login", async (req: Request, res: Response): Promise<void> => {
+router.post("/admin/login", loginLimiter, async (req: Request, res: Response): Promise<void> => {
   const { username, password } = req.body;
+  const ip = getClientIp(req);
   if (username !== config.adminUsername) {
+    await query(
+      "INSERT INTO audit_log (admin_user, action, target, ip) VALUES ('unknown', 'login_failed', $1, $2)",
+      [ip, ip]
+    );
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
   const valid = await verifyAdminPassword(password);
   if (!valid) {
+    await query(
+      "INSERT INTO audit_log (admin_user, action, target, ip) VALUES ('unknown', 'login_failed', $1, $2)",
+      [ip, ip]
+    );
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
