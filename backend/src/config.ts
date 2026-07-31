@@ -7,6 +7,7 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || "nexus-dev-secret-change-in-production",
   adminUsername: process.env.ADMIN_USERNAME || "admin",
   adminPasswordHash: process.env.ADMIN_PASSWORD_HASH || "",
+  corsOrigin: process.env.CORS_ORIGIN || "http://localhost:3000",
   sorobanRpcUrl: process.env.SOROBAN_RPC_URL || "https://soroban-testnet.stellar.org",
   nexusContractId: process.env.NEXUS_CONTRACT_ID || "",
   networkPassphrase: process.env.STELLAR_NETWORK_PASSPHRASE || "Test SDF Network ; September 2015",

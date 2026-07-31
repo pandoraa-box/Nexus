@@ -7,7 +7,7 @@ import adminRouter from "./routes/admin";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: [config.corsOrigin], credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
