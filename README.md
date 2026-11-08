@@ -22,6 +22,36 @@ Africa's Talking USSD
 └─────────────────┘
 ```
 
+### End-to-End Remittance Sequence Flow
+
+*Alt-text description*: Sequence diagram illustrating the end-to-end remittance lifecycle: The mobile user dials a USSD shortcode (*347*123#) via Africa's Talking gateway; the gateway forwards the request to the Express backend via POST /api/ussd; the backend verifies user registration and wallet credentials in PostgreSQL; the backend resolves the recipient via Soroban RPC and invokes the NexusRegistry smart contract on Stellar testnet; upon transaction execution and on-chain event emission, the backend logs the record to PostgreSQL, terminates the USSD session with success, and Africa's Talking dispatches an SMS confirmation to the user.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Mobile User
+    participant USSD as Africa's Talking (USSD Gateway)
+    participant API as Backend (Express API)
+    participant DB as PostgreSQL
+    participant RPC as Soroban RPC
+    participant Contract as NexusRegistry (Stellar)
+
+    User->>USSD: Dial *347*123#
+    USSD->>API: POST /api/ussd
+    API->>DB: Lookup user + wallet
+    DB-->>API: User & wallet record
+    API->>RPC: resolve(phone)
+    RPC->>Contract: resolve()
+    Contract-->>RPC: Recipient Address
+    API->>RPC: send(from, phone, amount)
+    RPC->>Contract: send()
+    Contract-->>RPC: Emit event
+    API->>DB: INSERT transaction
+    DB-->>API: OK
+    API->>USSD: END Success
+    USSD->>User: SMS with tx link
+```
+
 ## Prerequisites
 
 - Node.js 20+
