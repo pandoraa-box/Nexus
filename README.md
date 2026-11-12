@@ -266,3 +266,14 @@ Nexus/
 ## License
 
 MIT — built for Drips / Grantfox ecosystem.
+
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    Client[Web / Mobile Client] -->|API Calls / RPC| Gateway[API Gateway / Router]
+    Gateway -->|Authentication| AuthService[Auth & Session Service]
+    Gateway -->|Soroban RPC| SmartContracts[Stellar Soroban Contracts]
+    SmartContracts -->|Events & Ledger State| Horizon[Stellar Horizon / RPC]
+    Gateway -->|Persistence| Database[(State Storage / Cache)]
+```
